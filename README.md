@@ -1,3 +1,3 @@
-# app_agenda
+# Aplicativo "Central Saloon"
 
-A new Flutter project.
+Um novo projeto de aplicativo para encontrar salões de beleza e barbearias na região.
