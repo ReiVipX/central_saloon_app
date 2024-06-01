@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'home_page.dart'; // Importe a página inicial
 import 'cadastro_page.dart'; // Importe a página de cadastro
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +18,59 @@ class _LoginPageState extends State<LoginPage> {
   String password = '';
   String errorMessage = ''; // Mensagem de erro para exibir
 
+  Future<void> _login() async {
+    // URL da API
+    var url = Uri.parse('https://centralsaloon-api.onrender.com/login');
+
+    // Removendo espaços em branco na esquerda e na direita
+    email = email.trim();
+    password = password.trim();
+
+    // Dados do usuário a serem enviados no corpo da requisição
+    var userData = {
+      "email": email,
+      "senha": password
+    };
+
+    try {
+      // Realiza a requisição POST
+      var response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userData),
+      );
+
+      // Verifica se a requisição foi bem-sucedida
+      if (response.body == "true") {
+        print("Login bem sucedido!");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        print(response.statusCode);
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Erro de Login'),
+            content: Text(
+                'Email ou senha incorretos. Por favor, tente novamente.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (error) {
+      print('Erro ao processar requisição: $error');
+    }    
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,12 +82,16 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                
+                // Imagem da logo
                 Image.asset(
                   'assets/logo.png',
                   width: 200,
                   height: 200,
                 ),
                 SizedBox(height: 20),
+                
+                // Email
                 TextField(
                   onChanged: (text) {
                     setState(() {
@@ -50,6 +109,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
+                
+                // Password
                 TextField(
                   onChanged: (text) {
                     setState(() {
@@ -68,40 +129,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
+                
+                // Botão de Login
                 ElevatedButton(
-                  onPressed: () {
-                    // Removendo espaços em branco na esquerda e na direita
-                    email = email.trim();
-                    password = password.trim();
-
-                    if (email == 'admin' && password == 'admin') {
-                      print('Login realizado com sucesso!');
-                      // Navegar para a página inicial após o login bem-sucedido
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
-                    } else {
-                      print('Falhou o login!');
-                      // Exibir alerta de login inválido
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text('Erro de Login'),
-                          content: Text(
-                              'Email ou senha incorretos. Por favor, tente novamente.'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue, // Botão com cor azul
                   ),
@@ -111,6 +142,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
+                
+                // Mensagem de erro
                 Text(
                   errorMessage,
                   style: TextStyle(
@@ -118,6 +151,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
+                
+                // Botão de cadastro
                 GestureDetector(
                   onTap: () {
                     // Navegação para a tela de cadastro

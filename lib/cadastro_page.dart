@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CadastroPage extends StatefulWidget {
   const CadastroPage({super.key});
@@ -17,6 +19,7 @@ class _CadastroPageState extends State<CadastroPage> {
   String _email = '';
   String _telefone = '';
   String _endereco = '';
+  String _cpf = '';
   String _senha = '';
   String _confirmarSenha = '';
   String _dataNascimento = '';
@@ -29,16 +32,42 @@ class _CadastroPageState extends State<CadastroPage> {
     _enderecoController.text = endereco;
   }
 
-  void _cadastrarUsuario() {
-    // Aqui você pode implementar a lógica para cadastrar o usuário
-    // Pode enviar os dados para um servidor, por exemplo
-    print('Nome: $_nome');
-    print('E-mail: $_email');
-    print('Telefone: $_telefone');
-    print('Endereço: $_endereco');
-    print('Data de Nascimento: $_dataNascimento');
-    print('Senha: $_senha');
-    print('Confirmação de Senha: $_confirmarSenha');
+  Future<void> _cadastrarUsuario() async {
+    // URL da API
+    var url = Uri.parse('https://centralsaloon-api.onrender.com/cadastro');
+
+    String cep = _cepController.text;
+
+    // Dados do usuário a serem enviados no corpo da requisição
+    var userData = {
+      "nome": _nome,
+      "data_nascimento": _dataNascimento,
+      "cep": cep,
+      "endereco": _endereco,
+      "cpf" : _cpf,
+      "email": _email,
+      "celular": _telefone,
+      "senha": _senha
+    };
+
+    try {
+      // Realiza a requisição POST
+      var response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userData),
+      );
+
+      // Verifica se a requisição foi bem-sucedida
+      if (response.statusCode == 201) {
+        print('Usuário cadastrado com sucesso!');
+      } else {
+        print('Falha ao cadastrar usuário!');
+        print(response.statusCode);
+      }
+    } catch (error) {
+      print('Erro ao processar requisição: $error');
+    }
 
     // Após o cadastro, redireciona para a tela de login
     Navigator.pushReplacement(
@@ -78,6 +107,8 @@ class _CadastroPageState extends State<CadastroPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              
+              // Nome
               TextField(
                 onChanged: (value) {
                   setState(() {
@@ -93,6 +124,8 @@ class _CadastroPageState extends State<CadastroPage> {
                 ),
               ),
               SizedBox(height: 20),
+              
+              // Data de Nascimento
               TextField(
                 onChanged: (value) {
                   setState(() {
@@ -108,6 +141,8 @@ class _CadastroPageState extends State<CadastroPage> {
                 ),
               ),
               SizedBox(height: 20),
+              
+              // CEP
               Row(
                 children: [
                   Expanded(
@@ -133,6 +168,8 @@ class _CadastroPageState extends State<CadastroPage> {
                 ],
               ),
               SizedBox(height: 20),
+              
+              // Endereço
               TextField(
                 controller: _enderecoController,
                 onChanged: (value) {
@@ -149,6 +186,25 @@ class _CadastroPageState extends State<CadastroPage> {
                 ),
               ),
               SizedBox(height: 20),
+              
+              // CPF
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _cpf = value;
+                  });
+                },
+                style: TextStyle(
+                    color:
+                        Colors.white), // Definindo a cor do texto para branco
+                decoration: InputDecoration(
+                  labelText: 'CPF',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              
+              // Email
               TextField(
                 onChanged: (value) {
                   setState(() {
@@ -164,6 +220,8 @@ class _CadastroPageState extends State<CadastroPage> {
                 ),
               ),
               SizedBox(height: 20),
+              
+              // Telefone
               TextField(
                 onChanged: (value) {
                   setState(() {
@@ -179,6 +237,8 @@ class _CadastroPageState extends State<CadastroPage> {
                 ),
               ),
               SizedBox(height: 20),
+              
+              // Senha
               TextField(
                 onChanged: (value) {
                   setState(() {
@@ -195,6 +255,8 @@ class _CadastroPageState extends State<CadastroPage> {
                 ),
               ),
               SizedBox(height: 20),
+              
+              // Confirmar Senha
               TextField(
                 onChanged: (value) {
                   setState(() {
@@ -211,10 +273,13 @@ class _CadastroPageState extends State<CadastroPage> {
                 ),
               ),
               SizedBox(height: 20),
+              
+              // Cadastrar
               ElevatedButton(
                 onPressed: _cadastrarUsuario,
                 child: Text('Cadastrar'),
               ),
+            
             ],
           ),
         ),
