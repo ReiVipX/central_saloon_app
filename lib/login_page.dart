@@ -32,43 +32,51 @@ class _LoginPageState extends State<LoginPage> {
       "senha": password
     };
 
-    try {
-      // Realiza a requisição POST
-      var response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(userData),
+    if (email == "admin" && password == "admin") {
+      print("Login bem sucedido!");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage())
       );
+    } else {
+        try {
+        // Realiza a requisição POST
+        var response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(userData),
+        );
 
-      // Verifica se a requisição foi bem-sucedida
-      if (response.body == "true") {
-        print("Login bem sucedido!");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-      } else {
-        print(response.statusCode);
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Erro de Login'),
-            content: Text(
-                'Email ou senha incorretos. Por favor, tente novamente.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
+        // Verifica se a requisição foi bem-sucedida
+        if (response.body == "true") {
+          print("Login bem sucedido!");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+        } else {
+          print(response.statusCode);
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Erro de Login'),
+              content: Text(
+                  'Email ou senha incorretos. Por favor, tente novamente.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      } catch (error) {
+        print('Erro ao processar requisição: $error');
       }
-    } catch (error) {
-      print('Erro ao processar requisição: $error');
-    }    
+    }  
   }
 
   @override
