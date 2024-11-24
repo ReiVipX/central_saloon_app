@@ -21,7 +21,7 @@ class BarbeariaPage extends StatefulWidget {
   State<BarbeariaPage> createState() => _BarbeariaPageState();
 }
 
-class _BarbeariaPageState extends State<BarbeariaPage> {
+class _BarbeariaPageState extends State <BarbeariaPage>{
   DateTime? selectedDate;
   String? selectedTime;
   String? selectedService;
@@ -329,6 +329,8 @@ class _BarbeariaPageState extends State<BarbeariaPage> {
                       }).toList(),
                     ),
                     const SizedBox(height: 20),
+
+                    
                     
                     ElevatedButton(
                       onPressed: () {

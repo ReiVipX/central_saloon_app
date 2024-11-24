@@ -1,10 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // Importe a página inicial
-import 'cadastro_page.dart'; // Importe a página de cadastro
+import 'home_page.dart';
+import 'cadastro_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,67 +15,52 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String email = '';
   String password = '';
-  String errorMessage = ''; // Mensagem de erro para exibir
+  String errorMessage = '';
+  bool isLoading = false;
 
   Future<void> _login() async {
-    // URL da API
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        errorMessage = 'Por favor, preencha todos os campos.';
+      });
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
     var url = Uri.parse('https://centralsaloon-api.onrender.com/login');
+    var userData = {"email": email.trim(), "senha": password.trim()};
 
-    // Removendo espaços em branco na esquerda e na direita
-    email = email.trim();
-    password = password.trim();
-
-    // Dados do usuário a serem enviados no corpo da requisição
-    var userData = {
-      "email": email,
-      "senha": password
-    };
-
-    if (email == "admin" && password == "admin") {
-      print("Login bem sucedido!");
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage())
+    try {
+      var response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userData),
       );
-    } else {
-        try {
-        // Realiza a requisição POST
-        var response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(userData),
-        );
 
-        // Verifica se a requisição foi bem-sucedida
-        if (response.body == "true") {
-          print("Login bem sucedido!");
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomePage()),
-          );
-        } else {
-          print(response.statusCode);
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Erro de Login'),
-              content: Text(
-                  'Email ou senha incorretos. Por favor, tente novamente.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            ),
-          );
-        }
-      } catch (error) {
-        print('Erro ao processar requisição: $error');
+      if (response.body == "true" ||
+          (email == "admin" && password == "admin")) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        setState(() {
+          errorMessage = 'Email ou senha incorretos. Tente novamente.';
+        });
       }
-    }  
+    } catch (error) {
+      setState(() {
+        errorMessage = 'Erro ao processar a requisição. Tente novamente.';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -90,90 +74,84 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                
-                // Imagem da logo
                 Image.asset(
                   'assets/logo.png',
-                  width: 200,
-                  height: 200,
+                  width: 150,
+                  height: 150,
                 ),
                 SizedBox(height: 20),
-                
-                // Email
+
+                // Campo de E-mail
                 TextField(
-                  onChanged: (text) {
-                    setState(() {
-                      email = text;
-                    });
-                    print('Email digitado: $text');
-                  },
-                  style: TextStyle(
-                      color: Colors.white), // Define a cor do texto para branco
+                  onChanged: (text) => setState(() => email = text),
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'E-mail',
+                    prefixIcon: Icon(Icons.email, color: Colors.white),
                     border: OutlineInputBorder(),
-                    fillColor: Colors.grey[900],
+                    fillColor: Colors.grey[800],
                     filled: true,
+                    labelStyle: TextStyle(color: Colors.white),
                   ),
                 ),
                 SizedBox(height: 20),
-                
-                // Password
+
+                // Campo de Senha
                 TextField(
-                  onChanged: (text) {
-                    setState(() {
-                      password = text;
-                    });
-                    print('Senha digitada: $text');
-                  },
+                  onChanged: (text) => setState(() => password = text),
                   obscureText: true,
-                  style: TextStyle(
-                      color: Colors.white), // Define a cor do texto para branco
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Senha',
+                    prefixIcon: Icon(Icons.lock, color: Colors.white),
                     border: OutlineInputBorder(),
-                    fillColor: Colors.grey[900],
+                    fillColor: Colors.grey[800],
                     filled: true,
+                    labelStyle: TextStyle(color: Colors.white),
                   ),
                 ),
                 SizedBox(height: 20),
-                
-                // Botão de Login
-                ElevatedButton(
-                  onPressed: _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Botão com cor azul
-                  ),
-                  child: Text(
-                    'Login',
-                    style: TextStyle(color: Colors.white), // Texto branco
-                  ),
-                ),
+
+                // Botão de Login ou Barra de Progresso
+                isLoading
+                    ? CircularProgressIndicator(color: Colors.blue)
+                    : ElevatedButton(
+                        onPressed: _login,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
                 SizedBox(height: 20),
-                
-                // Mensagem de erro
-                Text(
-                  errorMessage,
-                  style: TextStyle(
-                    color: Colors.red, // Texto vermelho
+
+                // Exibição de mensagens de erro
+                if (errorMessage.isNotEmpty)
+                  Text(
+                    errorMessage,
+                    style: TextStyle(color: Colors.red, fontSize: 14),
                   ),
-                ),
                 SizedBox(height: 20),
-                
+
                 // Botão de cadastro
                 GestureDetector(
                   onTap: () {
-                    // Navegação para a tela de cadastro
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CadastroPage()),
                     );
                   },
                   child: Text(
-                    'Cadastre-se',
+                    'Não tem uma conta? Cadastre-se',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.blue, // Texto azul
+                      color: Colors.blue,
                       decoration: TextDecoration.underline,
                     ),
                   ),

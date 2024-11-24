@@ -15,10 +15,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-        // Definindo o tema dark
-        scaffoldBackgroundColor: Colors.grey[900], // Cor de fundo dark
+        scaffoldBackgroundColor: Colors.grey[900], // Fundo escuro
         textTheme: ThemeData.dark().textTheme.apply(
-              bodyColor: Colors.white, // Definindo a cor do texto para branco
+              bodyColor: Colors.white, // Texto branco
             ),
       ),
       home: Scaffold(
@@ -39,78 +38,80 @@ class _HomePageState extends State<HomePage> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const BarbeariaPage()), // Navegar para EspacoMulherPage
-                  ); // Navigate to Barbearia page
-                },
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Opacity(
-                      opacity: 0.7,
-                      child: Image.asset(
-                        'assets/barbearia.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Container(
-                      color: Colors.black.withOpacity(0.2),
-                      child: const Center(
-                        child: Text(
-                          'Barbearia',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            OptionCard(
+              imagePath: 'assets/barbearia.png',
+              title: 'Barbearia',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const BarbeariaPage()),
+                );
+              },
+            ),
+            OptionCard(
+              imagePath: 'assets/salao_beleza.png',
+              title: 'Espaço Mulher',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const EspacoMulherPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class OptionCard extends StatelessWidget {
+  final String imagePath;
+  final String title;
+  final VoidCallback onTap;
+
+  const OptionCard({
+    super.key,
+    required this.imagePath,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Opacity(
+              opacity: 0.7,
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
               ),
             ),
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  // Navigate to Espaço Mulher page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const EspacoMulherPage()), // Navegar para EspacoMulherPage
-                  );
-                },
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Opacity(
-                      opacity: 0.7,
-                      child: Image.asset(
-                        'assets/salao_beleza.png',
-                        fit: BoxFit.cover,
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: Center(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 4,
+                        color: Colors.black,
+                        offset: Offset(2, 2),
                       ),
-                    ),
-                    Container(
-                      color: Colors.black.withOpacity(0.2),
-                      child: const Center(
-                        child: Text(
-                          'Espaço Mulher',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
