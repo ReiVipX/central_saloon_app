@@ -357,7 +357,11 @@ class _BarbeariaPageState extends State <BarbeariaPage>{
                                 actions: <Widget>[
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.of(context).pop();
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => HomePage(),
+                                        ),
+                                      );
                                     },
                                     child: const Text('OK'),
                                   ),

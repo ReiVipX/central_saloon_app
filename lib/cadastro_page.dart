@@ -125,22 +125,27 @@ class _CadastroPageState extends State<CadastroPage> {
               ),
               SizedBox(height: 20),
               
-              // Data de Nascimento
               TextField(
                 onChanged: (value) {
                   setState(() {
                     _dataNascimento = value;
                   });
                 },
-                style: TextStyle(
-                    color:
-                        Colors.white), // Definindo a cor do texto para branco
+                style: TextStyle(color: Colors.white), // Definindo a cor do texto para branco
                 decoration: InputDecoration(
                   labelText: 'Data de Nascimento',
                   border: OutlineInputBorder(),
                 ),
               ),
               SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _dataNascimento = _dataNascimento.replaceAll('/', '-');
+                  });
+                },
+                child: Text('Enviar'),
+              ),
               
               // CEP
               Row(
